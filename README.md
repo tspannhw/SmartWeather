@@ -13,3 +13,13 @@ https://www.datainmotion.dev/2020/11/flank-smart-weather-applications-with.html
 
 ![NiFi](https://1.bp.blogspot.com/-5ffmuX1qAmU/X5r3VpGiHTI/AAAAAAAAbzY/TMW3-tlLufEMC6MUJBirqglwDPrqT54pACLcBGAsYHQ/w634-h640/validateAndProduce.png)
 
+
+# To Script Loading Schemas, Tables, Alerts see scripts/setup.sh:
+
+https://github.com/tspannhw/ApacheConAtHome2020
+
+# Run Flink SQL Client
+
+flink-yarn-session -tm 2048 -s 2 -d
+
+flink-sql-client embedded -e sql-env.yaml
