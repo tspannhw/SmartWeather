@@ -1,0 +1,4 @@
+
+# hbase shell
+create 'socketcache' ,'socketcache'
+exit
