@@ -1,0 +1,129 @@
+<html>
+<head>
+<style>
+#results {
+    height: 100ex;
+    overflow: auto;
+    border: 1px solid gray;
+}
+</style>
+<title>NiFi Web Page For Kafka</title>
+</head>
+<body bgcolor="white" text="black">
+<B>Kafka to Websockets Demo</b>
+<br><br>
+<br><b>Receiving Updated Kafka Data:</b>
+<br><br>
+    Your Name: <input type="text" id="user_name" size="50">
+    Your Message: <input type="text" id="kafkamessage" size="200">
+    <input type="hidden" name="lng" id="lng" value="NA"/>
+    <input type="hidden" name="lat" id="lat" value="NA"/>
+    <input type="button" id="send" value="Send" onclick="sendKafkaMessage()"> <div id="msgout"> </div>
+<p></p>
+<br><br>
+<div id="results"> </div>
+
+<br><br>
+
+<script>
+  var lat2 =  0;
+  var long2 =  1;
+
+
+////////////
+function geoFindMe() {
+  if (!navigator.geolocation){
+    return;
+  }
+
+  function success(position) {
+     lat2  = position.coords.latitude;
+     long2 = position.coords.longitude;
+  }
+
+  function error() {
+    return;
+  }
+
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(success, error);
+  }
+}
+
+function sendKafkaMessage(){
+    geoFindMe();
+    sendMessage('publish', {
+        "message": document.getElementById("kafkamessage").value,
+        "latitude": lat2,
+        "longitude": long2
+    });
+    
+    var msgout = document.getElementById("msgout");
+    msgout.innerHTML = "<b>Sent..." + document.getElementById("kafkamessage").value + ".</b><br>";
+    document.getElementById("kafkamessage").value = "";
+}
+function sendMessage(type, payload) {
+	ws.send(makeMessage(type, payload));
+}
+
+function makeMessage(type, payload) {
+	return JSON.stringify({
+		'type': type,
+		'payload': payload
+	});
+}
+
+var wsUri = "ws://edge2ai-1.dim.local:9091/test";
+var ws = new WebSocket(wsUri);
+
+function connect() {
+  geoFindMe();
+  var ws = new WebSocket(wsUri);
+  ws.onopen = function() {
+
+    sendMessage('publish', {
+        "message": document.getElementById("kafkamessage").value,
+        "latitude": lat2,
+        "longitude": long2
+    });
+  };
+
+  ws.onmessage = function(e) {
+    var dataPoints = JSON.parse(e.data);
+
+    var output = document.getElementById("results");
+    var dataBuffer = "<p>";
+
+    for(var i=0;i<dataPoints.length;i++)
+    {
+        dataBuffer += " <img src=\"" + dataPoints[i].icon_url_base + dataPoints[i].icon_url_name + "\"> &nbsp;" +  dataPoints[i].location +
+                      dataPoints[i].station_id  + "@" +  dataPoints[i].latitude   + ":" +
+                      dataPoints[i].longitude  + "@" +  dataPoints[i].observation_time +
+                      dataPoints[i].temperature_string + "," + dataPoints[i].relative_humidity + "," +
+                      dataPoints[i].wind_string +"<br>";
+
+    }
+    output.innerHTML = output.innerHTML +  dataBuffer + "</p><br>";
+
+  };
+
+  ws.onclose = function(e) {
+    console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+    setTimeout(function() {
+      connect();
+    }, 1000);
+  };
+
+  ws.onerror = function(err) {
+    console.error('Socket encountered error: ', err.message, 'Closing socket');
+    ws.close();
+  };
+}
+
+connect();
+
+</script>
+
+&copy; 2020 Tim Spann
+</body>
+</html>
