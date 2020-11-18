@@ -1,4 +1,5 @@
 
 # hbase shell
 create 'socketcache' ,'socketcache'
+create 'weather', 'weather_details'
 exit
