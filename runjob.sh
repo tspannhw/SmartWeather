@@ -2,6 +2,6 @@ flink run --jobmanager yarn-cluster --detached --parallelism 1 --yarnname Weathe
 -yt /opt/demo/conf/application.properties \
 weather-1.0.jar \
 --kafka.bootstrap.servers edge2ai-1.dim.local:9092 \
---kafkaTopic weather \
+--kafkaTopic weathernj \
 --hdfsOutput hdfs:///tmp/weatherapp \
 --properties.file /opt/demo/conf/application.properties
